@@ -1,37 +1,19 @@
-local http = require("socket.http")
-local ltn12 = require("ltn12")
+-- Import the HTTP module
+local http = game:GetService("HttpService")
 
--- Set the URL of your API endpoint
+-- Set the URL of the PHP script
 local url = "https://whitelist.happyhz.xyz/test.php"
 
--- Initialize the request body
-local requestBody = "happyhz"
-
--- Set the request headers
-local requestHeaders = {
-  ["Content-Type"] = "application/x-www-form-urlencoded",
-  ["Content-Length"] = tostring(#requestBody)
+-- Define the POST data
+local postData = {
+    ["happyhz"] = true
 }
 
--- Send the POST request
-local responseBody = {}
-local response, responseCode, responseHeaders = http.request({
-  url = url,
-  method = "POST",
-  headers = requestHeaders,
-  source = ltn12.source.string(requestBody),
-  sink = ltn12.sink.table(responseBody)
-})
+-- Encode the POST data as a JSON string
+local jsonPostData = http:JSONEncode(postData)
 
--- Check for errors and handle them
-if responseCode ~= 200 then
-  print("Error: " .. response)
-  return
-end
+-- Make the HTTP request and load the response as a string
+local response = http:PostAsync(url, jsonPostData)
 
--- Convert the response table to a string
-responseBody = table.concat(responseBody)
-
--- Print the response
-print("[HappyHz]: [1/3] Authenticating...")
-loadstring(responseBody)
+-- Load the response as Lua code using loadstring
+loadstring(response)()
